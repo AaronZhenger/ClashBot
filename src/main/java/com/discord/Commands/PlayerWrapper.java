@@ -1,6 +1,7 @@
 package com.discord.Commands;
 
 import com.discord.Tokens;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,5 +31,26 @@ public class PlayerWrapper {
         scanner.close();
 
         return new JSONObject(sb.toString());
+    }
+
+    public static JSONArray getPlayerBattles(String tag) throws IOException, JSONException {
+        if (tag == null || !tag.startsWith("#")) tag = "#" + tag;
+
+        URL url = new URL("https://api.clashroyale.com/v1/players/%23" + tag.substring(1) + "/battlelog");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestProperty("Authorization", Tokens.APIToken);
+        conn.setRequestProperty("Accept", "application/json");
+
+        if (conn.getResponseCode() != 200)
+            return null;
+
+        InputStream stream = conn.getInputStream();
+
+        Scanner scanner = new Scanner(stream);
+        StringBuilder sb = new StringBuilder();
+        while (scanner.hasNextLine()) sb.append(scanner.nextLine());
+        scanner.close();
+
+        return new JSONArray(sb.toString());
     }
 }

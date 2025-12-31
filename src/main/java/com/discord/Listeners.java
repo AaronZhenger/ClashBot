@@ -67,7 +67,9 @@ public class Listeners extends ListenerAdapter {
                             Commands.slash("trophies", "Gets Player Trophies")
                                     .addOption(OptionType.USER, "user", "User to get trophies", false),
                             Commands.slash("player_info", "Gets a Player's info")
-                                    .addOption(OptionType.USER, "user", "User to get info", false)
+                                    .addOption(OptionType.USER, "user", "User to get info", false),
+                            Commands.slash("battlelog", "Gets a Player's battle log")
+                                    .addOption(OptionType.USER, "user", "User's battle log", false)
                     )
                     .queue();
         }
@@ -106,7 +108,7 @@ public class Listeners extends ListenerAdapter {
             String authorId = message.getAuthor().getId();
 
             if (Math.round(number) == expected && !authorId.equals(lastCounter.get(guildId))) {
-                message.addReaction(Emoji.fromUnicode("✅")).queue();
+                message.addReaction(Emoji.fromUnicode("U+2714")).queue();
                 lastCounter.put(guildId, authorId);
                 serverNumbers.put(guildId, expected);
                 try {
@@ -115,13 +117,13 @@ public class Listeners extends ListenerAdapter {
                     throw new RuntimeException(e);
                 }
             } else {
-                message.addReaction(Emoji.fromUnicode("❌")).queue();
+                message.addReaction(Emoji.fromUnicode("U+274C")).queue();
             }
         }
 
         if (messageContent.equalsIgnoreCase("%ping")) {
             long ping = event.getJDA().getGatewayPing();
-            channel.sendMessage("🏓 Pong! " + ping + "ms").queue();
+            channel.sendMessage(":ping_pong: Pong! " + ping + "ms").queue();
         }
     }
 }

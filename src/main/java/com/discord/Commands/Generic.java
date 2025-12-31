@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
@@ -17,12 +18,12 @@ public class Generic {
         String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
 
         if (!event.getGuild().getSelfMember().hasPermission(Permission.MODERATE_MEMBERS)) {
-            event.getHook().sendMessage("❌ I do not have permission to timeout this member.").queue();
+            event.getHook().sendMessage(":x: I do not have permission to timeout this member.").queue();
             return;
         }
 
         if (!event.getMember().hasPermission(Permission.MODERATE_MEMBERS) || !event.getMember().canInteract(target)) {
-            event.getHook().sendMessage("❌ You do not have permission to timeout this member.").queue();
+            event.getHook().sendMessage(":x: You do not have permission to timeout this member.").queue();
             return;
         }
 
@@ -47,24 +48,24 @@ public class Generic {
                     default -> throw new IllegalArgumentException();
                 };
             } catch (Exception e) {
-                event.getHook().sendMessage("❌ Invalid time format. Use `20s`, `10m`, `2h`, or `1d`.").queue();
+                event.getHook().sendMessage(":x: Invalid time format. Use `20s`, `10m`, `2h`, or `1d`.").queue();
                 return;
             }
         }
 
         event.getGuild().timeoutFor(target, duration, unit).queue(
                 success -> {
-                    event.getHook().sendMessage("✅ Successfully timed out **" + target.getUser().getAsTag() + "**.").queue();
+                    event.getHook().sendMessage(":white_check_mark: Successfully timed out **" + target.getUser().getAsTag() + "**.").queue();
                     EmbedBuilder publicEmbed = new EmbedBuilder()
-                            .setColor(Color.RED)
-                            .setTitle("⏱️ Member Timed Out")
+                            .setColor(new Color(33, 133, 208))
+                            .setTitle(":stopwatch: Member Timed Out")
                             .addField("User", target.getUser().getAsTag(), true)
                             .addField("Duration", event.getOption("time").getAsString(), true)
                             .addField("Reason", reason, false)
                             .setFooter("Requested by: " + event.getUser().getAsTag());
                     event.getChannel().sendMessageEmbeds(publicEmbed.build()).queue();
                 },
-                failure -> event.getHook().sendMessage("❌ Failed to timeout: " + failure.getMessage()).queue()
+                failure -> event.getHook().sendMessage(":x: Failed to timeout: " + failure.getMessage()).queue()
         );
     }
 
@@ -77,21 +78,20 @@ public class Generic {
         recipient.getUser().openPrivateChannel()
                 .flatMap(channel -> channel.sendMessage("**" + event.getUser().getAsTag() + "** whispers to you:\n> *\"" + content + "\"*"))
                 .queue(
-                        success -> event.getHook().sendMessage("📨 Whisper sent!").queue(),
-                        failure -> event.getHook().sendMessage("❌ Could not send whisper.").queue()
+                        success -> event.getHook().sendMessage(":incoming_envelope: Whisper sent!").queue(),
+                        failure -> event.getHook().sendMessage(":x: Could not send whisper.").queue()
                 );
     }
 
     public static void handleEcho(SlashCommandInteractionEvent event) {
         event.replyEmbeds(new EmbedBuilder()
-                .setTitle("Echo")
-                .setColor(Color.GREEN)
-                .setDescription(event.getOption("message").getAsString())
+                .setTitle(event.getOption("message").getAsString())
+                .setColor(new Color(33, 133, 208))
                 .setFooter("Sent by: " + event.getUser().getAsTag())
                 .build()).queue();
     }
 
-    public static void handleUserInfo(SlashCommandInteractionEvent event) {
+    public static void handleUserInfo(SlashCommandInteractionEvent event) throws FileNotFoundException {
         event.deferReply().queue();
 
         Member member = event.getOption("user") == null ? event.getMember() : event.getOption("user").getAsMember();
@@ -105,7 +105,7 @@ public class Generic {
                 .addField("Status", member.getOnlineStatus().toString(), true)
                 .addField("Role", member.getRoles().isEmpty() ? "None" : member.getRoles().getFirst().getName(), true)
                 .addField("Boost Status", String.valueOf(member.isBoosting()), true)
-                .addField("\u200B", "\u200B", true)
+                .addField("CR Account", String.valueOf(PlayerTags.readPlayerTags().containsKey(member.getUser().getIdLong())), true)
                 .addField("Joined Server", member.getTimeJoined().toLocalDate().format(DateTimeFormatter.ofPattern("MMMM d, yyyy")), false)
                 .setThumbnail(member.getUser().getAvatarUrl())
                 .setFooter("Requested by: " + event.getUser().getAsTag());

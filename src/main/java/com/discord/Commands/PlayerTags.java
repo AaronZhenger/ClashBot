@@ -2,6 +2,7 @@ package com.discord.Commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.awt.*;
 import java.io.*;
@@ -50,8 +51,8 @@ public class PlayerTags {
         writePlayerTags(tags);
 
         event.getHook().sendMessageEmbeds(new EmbedBuilder()
-                .setTitle("✅ Successfully Stored Player Tag")
-                .setColor(Color.GREEN)
+                .setTitle(":white_check_mark: Successfully Stored Player Tag")
+                .setColor(new Color(33, 133, 208))
                 .setDescription("Welcome to our community!")
                 .setFooter("Requested by: " + event.getUser().getAsTag())
                 .build()).queue();
@@ -61,12 +62,12 @@ public class PlayerTags {
         event.deferReply().queue();
 
         HashMap<Long, String> tags = readPlayerTags();
-        long userId = event.getOption("user") == null ? event.getMember().getIdLong() :
+        long userId = event.getOption("user") == null ? event.getMember().getUser().getIdLong() :
                 event.getOption("user").getAsUser().getIdLong();
 
         if (!tags.containsKey(userId)) {
             event.getHook().sendMessageEmbeds(new EmbedBuilder()
-                    .setTitle("❌ User has not connected account")
+                    .setTitle(":x: User has not connected account")
                     .setColor(Color.RED)
                     .setDescription("Try `/set_player_tag` to get started.")
                     .setFooter("Requested by: " + event.getUser().getAsTag())
@@ -76,7 +77,7 @@ public class PlayerTags {
 
         event.getHook().sendMessageEmbeds(new EmbedBuilder()
                 .setTitle(tags.get(userId))
-                .setColor(Color.GREEN)
+                .setColor(new Color(33, 133, 208))
                 .setDescription(event.getOption("user").getAsUser().getAsTag() + "'s player tag")
                 .setFooter("Requested by: " + event.getUser().getAsTag())
                 .build()).queue();
@@ -84,7 +85,16 @@ public class PlayerTags {
 
     public static void tagInvalid(SlashCommandInteractionEvent event) {
         event.getHook().sendMessageEmbeds(new EmbedBuilder()
-                .setTitle("❌ Player Tag Invalid")
+                .setTitle(":x: Player Tag Invalid")
+                .setColor(Color.RED)
+                .setDescription("Player tags can be found under Clash Royale profiles")
+                .setFooter("Requested by: " + event.getUser().getAsTag())
+                .build()).queue();
+    }
+
+    public static void tagInvalid(ButtonInteractionEvent event) {
+        event.getHook().sendMessageEmbeds(new EmbedBuilder()
+                .setTitle(":x: Player Tag Invalid")
                 .setColor(Color.RED)
                 .setDescription("Player tags can be found under Clash Royale profiles")
                 .setFooter("Requested by: " + event.getUser().getAsTag())
