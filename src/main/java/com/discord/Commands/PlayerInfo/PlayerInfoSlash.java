@@ -160,10 +160,11 @@ public class PlayerInfoSlash {
                     false
             );
             boolean ladder = battle.getJSONArray("team").getJSONObject(0).has("startingTrophies");
-            String add = result.equals("Defeat") ? " " : " +";
+            String add = result.equals("Defeat") ? " -" : " +";
             String trophyHandling = "";
             trophyHandling+=(ladder ? battle.getJSONArray("team").getJSONObject(0).getInt("startingTrophies")+ add
-                    + battle.getJSONArray("team").getJSONObject(0).getInt("trophyChange") : 0);
+                    + (battle.getJSONArray("team").getJSONObject(0).has("trophyChange") ?
+                    Math.abs(battle.getJSONArray("team").getJSONObject(0).getInt("trophyChange")) : 0) : 0);
             String crowns = "";
             for (int j = 0; j < battle.getJSONArray("team").getJSONObject(0).getInt("crowns"); j++)
                 crowns+="<:BlueCrown1:1455755331224207471> ";
@@ -173,10 +174,11 @@ public class PlayerInfoSlash {
                     crowns+"**"+battle.getJSONArray("team").getJSONObject(0).getInt("crowns")+"**",
                     true
             );
-            String addO = result.equals("Defeat") ? " +" : " ";
+            String addO = result.equals("Defeat") ? " +" : " -";
             String trophyHandlingO = "";
             trophyHandlingO+=(ladder ? battle.getJSONArray("opponent").getJSONObject(0).getInt("startingTrophies")+ addO
-                    + battle.getJSONArray("opponent").getJSONObject(0).getInt("trophyChange") : 0);
+                    + (battle.getJSONArray("team").getJSONObject(0).has("trophyChange") ?
+                    battle.getJSONArray("team").getJSONObject(0).getInt("trophyChange") : 0) : 0);
             String crownsO = "";
             for (int j = 0; j < battle.getJSONArray("opponent").getJSONObject(0).getInt("crowns"); j++)
                 crownsO+="<:RedCrown1:1455755351663050814> ";
@@ -188,8 +190,15 @@ public class PlayerInfoSlash {
             );
         }
 
-        event.getHook().sendMessageEmbeds(embed.build())
-//                .addActionRow(Button.primary("playerInfo", "My Stats"))
-                .queue();
+        event.getHook()
+                .sendMessageEmbeds(embed.build())
+                .queue(
+                        success -> {},
+                        error -> {
+                            event.getHook().sendMessage(
+                                    "❌ **Battle Log Error**\n```" + error.getMessage() + "```"
+                            ).queue();
+                        }
+                );
     }
 }
